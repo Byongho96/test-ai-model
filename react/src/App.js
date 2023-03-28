@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
+import Canvas from './Canvas'
 
 function App() {
   const videoRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [videoResult, setVideoResult] = useState('')
 
   // 비디오 재생
   useEffect(() => {
@@ -29,38 +31,33 @@ function App() {
       canvas
         .getContext('2d')
         .drawImage(videoRef.current, 0, 0, canvas.width, canvas.height)
-      const imageFile = canvas.toDataURL('image/png')
-      console.log(imageFile)
-
-      // 캡쳐한 사진 전송
-      const formData = new FormData()
-      formData.append('image', imageFile)
-      const config = {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      const imageUrl = canvas.toDataURL('image/jpeg', 1.0)
+      const data = {
+        image_url: imageUrl,
       }
       axios
-        .post('http://127.0.0.1:8000/analyze/object', formData, config)
+        .post('http://127.0.0.1:8000/analyze/object2', data)
         .then((res) => {
           console.log('Image uploaded successfully.', res)
+          setVideoResult(res.data.result)
         })
         .catch((err) => {
           console.log('An error occurred: ', err)
         })
-    }, 5000)
+    }, 1000)
 
     // setInterval 삭제
     return () => clearInterval(interval)
   }, [isPlaying])
 
   return (
-    <div>
-      <video ref={videoRef} />
-      {/* <div>
-        {capturedVideos.map((capturedVideo) => (
-          <video key={capturedVideo} src={capturedVideo} controls />
-        ))}
-      </div> */}
-    </div>
+    <>
+      <div style={{ display: 'flex' }}>
+        <video ref={videoRef} />
+        <div>{videoResult}</div>
+      </div>
+      <Canvas />
+    </>
   )
 }
 

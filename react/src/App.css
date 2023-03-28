@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+.gradient-box {
+  width: 300px;
+  height: 200px;
+  background: url(https://picsum.photos/id/10/600/800) center/cover;
+  -webkit-mask: radial-gradient(circle at 20% 40%, transparent, #fff 50%);
+  mask: radial-gradient(circle at 20% 40%, transparent, #fff 50%);
+}
+
+.gradient-back {
+  background: pink;
+}
