@@ -5,7 +5,6 @@ export default function Canvas() {
   // canvas
   const cavasContainerRef = useRef()
   const canvasBoardRef = useRef()
-  const colorPickRefs = useRef([])
   const resetRef = useRef()
 
   const [canvasResult, setCanvasResult] = useState('')
@@ -50,6 +49,14 @@ export default function Canvas() {
       canvasBoardRef.current.width = cavasContainerRef.current.clientWidth
       canvasBoardRef.current.height = cavasContainerRef.current.clientHeight
 
+      context.fillStyle = 'white'
+      context.fillRect(
+        0,
+        0,
+        canvasBoardRef.current.width,
+        canvasBoardRef.current.height
+      )
+
       if (!canvasBoardRef.current) return
       if (!context) return
 
@@ -64,22 +71,11 @@ export default function Canvas() {
       canvasBoardRef.current.addEventListener('touchmove', beginPainting)
       canvasBoardRef.current.addEventListener('touchend', stopPainting)
 
-      // 색 바꿔주기
-      if (colorPickRefs.current) {
-        colorPickRefs.current.map((element) =>
-          element.addEventListener('click', (e) => {
-            lineWidth = 3
-            if (e.target) {
-              pickedColor = e.target.id
-            }
-          })
-        )
-      }
-
       // 화면 재구성
       if (resetRef.current) {
         resetRef.current.onclick = () => {
-          context.clearRect(
+          context.fillStyle = 'white'
+          context.fillRect(
             0,
             0,
             canvasBoardRef.current.width,

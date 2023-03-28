@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+import matplotlib.pyplot as plt
 
 import tensorflow as tf
 from tensorflow.keras.applications.inception_v3 import InceptionV3
@@ -11,6 +12,7 @@ import base64
 import numpy as np
 
 from classes.inceptionV3 import ref as inceptionV3_ref
+from classes.doodle import ref as doodle_ref
 
 app = FastAPI()
 
@@ -39,6 +41,8 @@ inceptionV3_model = tf.keras.applications.InceptionV3(
         classes=1000,
         classifier_activation="softmax",
     )
+
+doodle_model = tf.keras.models.load_model('./models/inceptionV3_150.h5')
 
 @app.get("/")
 async def root():
@@ -138,14 +142,30 @@ async def analyze_object(image: Image):
     # 이미지 천저리 
     image = tf.image.convert_image_dtype(image, tf.float32)
     image = tf.image.resize(image, [299, 299])
+
     image = tf.expand_dims(image, 0)
     
+    
     # 모델 구동
-    prediction = inceptionV3_model.predict(image)[0]
+    prediction = doodle_model.predict(image)
+    # print(prediction)
 
+    def softmax(a):
+        c = np.max(a)
+        exp_a = np.exp(a-c)
+        sum_exp_a = np.sum(exp_a)
+        y = exp_a / sum_exp_a
+        return y
+
+    post_prediction = softmax(prediction)
+    print(post_prediction)
     # 결과 후처리
-    idx = prediction.argmax()
-    result = inceptionV3_ref[idx]
+    idx = post_prediction.argmax()
+    result = doodle_ref[idx]
 
-    # # 반환
+    print(idx, result)
+
+    # 반환
     return {"result": result}
+
+# uvicorn main:app --reload
